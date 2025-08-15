@@ -17,3 +17,7 @@ variable "private_subnet_c_cidr" {
 variable "instance_type" {
   default = "t2.micro"
 }
+
+variable "key_name" {
+  default = "sunil-key"
+}

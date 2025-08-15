@@ -128,8 +128,9 @@ resource "aws_security_group" "db_sg" {
 resource "aws_instance" "vote_app" {
   ami           = "ami-0c02fb55956c7d316" # Amazon Linux 2
   instance_type = var.instance_type
+  key_name = var.key_name
   subnet_id     = aws_subnet.sunil_va_public.id
-  security_groups = [aws_security_group.frontend_sg.name]
+  vpc_security_group_ids = [aws_security_group.frontend_sg.id]
   tags = {
     Name = "sunil-vote-app"
   }
@@ -138,8 +139,9 @@ resource "aws_instance" "vote_app" {
 resource "aws_instance" "result_app" {
   ami           = "ami-0c02fb55956c7d316"
   instance_type = var.instance_type
+  key_name = var.key_name
   subnet_id     = aws_subnet.sunil_va_public.id
-  security_groups = [aws_security_group.frontend_sg.name]
+  vpc_security_group_ids = [aws_security_group.frontend_sg.id]
   tags = {
     Name = "sunil-result-app"
   }
@@ -148,8 +150,9 @@ resource "aws_instance" "result_app" {
 resource "aws_instance" "worker_app" {
   ami           = "ami-0c02fb55956c7d316"
   instance_type = var.instance_type
+  key_name = var.key_name
   subnet_id     = aws_subnet.sunil_va_private_b.id
-  security_groups = [aws_security_group.backend_sg.name]
+  vpc_security_group_ids = [aws_security_group.backend_sg.id]
   tags = {
     Name = "sunil-worker-app"
   }
@@ -158,8 +161,9 @@ resource "aws_instance" "worker_app" {
 resource "aws_instance" "redis_instance" {
   ami           = "ami-0c02fb55956c7d316"
   instance_type = var.instance_type
+  key_name = var.key_name
   subnet_id     = aws_subnet.sunil_va_private_b.id
-  security_groups = [aws_security_group.backend_sg.name]
+  vpc_security_group_ids = [aws_security_group.backend_sg.id]
   tags = {
     Name = "sunil-va-redis"
   }
@@ -168,8 +172,9 @@ resource "aws_instance" "redis_instance" {
 resource "aws_instance" "postgres_instance" {
   ami           = "ami-0c02fb55956c7d316"
   instance_type = var.instance_type
+  key_name = var.key_name
   subnet_id     = aws_subnet.sunil_va_private_c.id
-  security_groups = [aws_security_group.db_sg.name]
+  vpc_security_group_ids = [aws_security_group.db_sg.id]
   tags = {
     Name = "sunil-va-db"
   }
@@ -178,6 +183,7 @@ resource "aws_instance" "postgres_instance" {
 resource "aws_instance" "bastion" {
   ami           = "ami-0c02fb55956c7d316"
   instance_type = var.instance_type
+  key_name = var.key_name
   subnet_id     = aws_subnet.sunil_va_public.id
   associate_public_ip_address = true
   tags = {
