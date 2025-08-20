@@ -1,6 +1,8 @@
 # VPC
 resource "aws_vpc" "sunil_vpc" {
   cidr_block = var.vpc_cidr
+  enable_dns_support   = true
+  enable_dns_hostnames = true
   tags = {
     Name = "sunil-vote-app-vpc"
   }
@@ -177,7 +179,7 @@ resource "aws_security_group" "db_sg" {
     aws_security_group.frontend_sg.id
     ]
   }
-  
+
   ingress {
   from_port       = 22
   to_port         = 22
