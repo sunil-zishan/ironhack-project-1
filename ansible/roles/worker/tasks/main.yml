@@ -1,12 +1,5 @@
-- name: Inject Redis and Postgres into /etc/hosts
-  ansible.builtin.lineinfile:
-    path: /etc/hosts
-    line: "{{ item }}"
-    state: present
-  loop:
-    - "{{ hostvars['redis']['ansible_host'] | default('redis') }} redis"
-    - "{{ hostvars['postgres']['ansible_host'] | default('postgres') }} postgres"
-  become: true
+- name: Include common host injection
+  ansible.builtin.include_tasks: roles/common/tasks/inject_hosts.yml
 
 - name: Wait for Redis from worker host
   ansible.builtin.wait_for:

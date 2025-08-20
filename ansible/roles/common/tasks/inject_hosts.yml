@@ -1,0 +1,9 @@
+- name: Inject Redis and Postgres into /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    line: "{{ item }}"
+    state: present
+  loop:
+    - "{{ hostvars['redis']['ansible_host'] | default('redis') }} redis"
+    - "{{ hostvars['postgres']['ansible_host'] | default('postgres') }} postgres"
+  become: true
