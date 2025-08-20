@@ -1,6 +1,5 @@
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "sunil-terraform-state-dvft2025"
-  acl    = "private"
   tags = {
     Name = "Terraform State Bucket"
   }

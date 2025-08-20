@@ -1,3 +1,4 @@
+# VPC
 resource "aws_vpc" "sunil_vpc" {
   cidr_block = var.vpc_cidr
   tags = {
@@ -5,6 +6,7 @@ resource "aws_vpc" "sunil_vpc" {
   }
 }
 
+# Subnets
 resource "aws_subnet" "sunil_va_public" {
   vpc_id                  = aws_vpc.sunil_vpc.id
   cidr_block              = var.public_subnet_cidr
@@ -20,7 +22,7 @@ resource "aws_subnet" "sunil_va_private_b" {
   cidr_block        = var.private_subnet_b_cidr
   availability_zone = "us-east-1a"
   tags = {
-    Name = "sunil-va-private"
+    Name = "sunil-va-private-b"
   }
 }
 
@@ -29,10 +31,11 @@ resource "aws_subnet" "sunil_va_private_c" {
   cidr_block        = var.private_subnet_c_cidr
   availability_zone = "us-east-1b"
   tags = {
-    Name = "sunil-va-private"
+    Name = "sunil-va-private-c"
   }
 }
 
+# Internet Gateway
 resource "aws_internet_gateway" "sunil_igw" {
   vpc_id = aws_vpc.sunil_vpc.id
   tags = {
@@ -40,6 +43,7 @@ resource "aws_internet_gateway" "sunil_igw" {
   }
 }
 
+# Public Route Table
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.sunil_vpc.id
   route {
@@ -54,6 +58,39 @@ resource "aws_route_table" "public_rt" {
 resource "aws_route_table_association" "public_assoc" {
   subnet_id      = aws_subnet.sunil_va_public.id
   route_table_id = aws_route_table.public_rt.id
+}
+
+# NAT Gateway Setup
+resource "aws_eip" "nat_eip" {
+}
+
+resource "aws_nat_gateway" "sunil_nat" {
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = aws_subnet.sunil_va_public.id
+  tags = {
+    Name = "sunil-va-nat"
+  }
+}
+
+resource "aws_route_table" "private_rt" {
+  vpc_id = aws_vpc.sunil_vpc.id
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.sunil_nat.id
+  }
+  tags = {
+    Name = "sunil-va-private-rt"
+  }
+}
+
+resource "aws_route_table_association" "private_assoc_b" {
+  subnet_id      = aws_subnet.sunil_va_private_b.id
+  route_table_id = aws_route_table.private_rt.id
+}
+
+resource "aws_route_table_association" "private_assoc_c" {
+  subnet_id      = aws_subnet.sunil_va_private_c.id
+  route_table_id = aws_route_table.private_rt.id
 }
 
 # Security Groups
@@ -126,9 +163,9 @@ resource "aws_security_group" "db_sg" {
 
 # EC2 Instances
 resource "aws_instance" "vote_app" {
-  ami           = "ami-0c02fb55956c7d316" # Amazon Linux 2
+  ami           = var.ami_id
   instance_type = var.instance_type
-  key_name = var.key_name
+  key_name      = var.key_name
   subnet_id     = aws_subnet.sunil_va_public.id
   vpc_security_group_ids = [aws_security_group.frontend_sg.id]
   tags = {
@@ -137,9 +174,9 @@ resource "aws_instance" "vote_app" {
 }
 
 resource "aws_instance" "result_app" {
-  ami           = "ami-0c02fb55956c7d316"
+  ami           = var.ami_id
   instance_type = var.instance_type
-  key_name = var.key_name
+  key_name      = var.key_name
   subnet_id     = aws_subnet.sunil_va_public.id
   vpc_security_group_ids = [aws_security_group.frontend_sg.id]
   tags = {
@@ -148,9 +185,9 @@ resource "aws_instance" "result_app" {
 }
 
 resource "aws_instance" "worker_app" {
-  ami           = "ami-0c02fb55956c7d316"
+  ami           = var.ami_id
   instance_type = var.instance_type
-  key_name = var.key_name
+  key_name      = var.key_name
   subnet_id     = aws_subnet.sunil_va_private_b.id
   vpc_security_group_ids = [aws_security_group.backend_sg.id]
   tags = {
@@ -159,9 +196,9 @@ resource "aws_instance" "worker_app" {
 }
 
 resource "aws_instance" "redis_instance" {
-  ami           = "ami-0c02fb55956c7d316"
+  ami           = var.ami_id
   instance_type = var.instance_type
-  key_name = var.key_name
+  key_name      = var.key_name
   subnet_id     = aws_subnet.sunil_va_private_b.id
   vpc_security_group_ids = [aws_security_group.backend_sg.id]
   tags = {
@@ -170,9 +207,9 @@ resource "aws_instance" "redis_instance" {
 }
 
 resource "aws_instance" "postgres_instance" {
-  ami           = "ami-0c02fb55956c7d316"
+  ami           = var.ami_id
   instance_type = var.instance_type
-  key_name = var.key_name
+  key_name      = var.key_name
   subnet_id     = aws_subnet.sunil_va_private_c.id
   vpc_security_group_ids = [aws_security_group.db_sg.id]
   tags = {
@@ -181,10 +218,10 @@ resource "aws_instance" "postgres_instance" {
 }
 
 resource "aws_instance" "bastion" {
-  ami           = "ami-0c02fb55956c7d316"
-  instance_type = var.instance_type
-  key_name = var.key_name
-  subnet_id     = aws_subnet.sunil_va_public.id
+  ami                         = var.ami_id
+  instance_type               = var.instance_type
+  key_name                    = var.key_name
+  subnet_id                   = aws_subnet.sunil_va_public.id
   associate_public_ip_address = true
   tags = {
     Name = "sunil-va-bastion"
