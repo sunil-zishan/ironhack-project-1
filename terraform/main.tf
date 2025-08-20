@@ -119,6 +119,10 @@ resource "aws_security_group" "frontend_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name = "Sunil-VA-Frontend"
+  }
 }
 
 resource "aws_security_group" "backend_sg" {
@@ -133,11 +137,22 @@ resource "aws_security_group" "backend_sg" {
     security_groups = [aws_security_group.frontend_sg.id]
   }
 
+  ingress {
+  from_port       = 22
+  to_port         = 22
+  protocol        = "tcp"
+  security_groups = [aws_security_group.ssh_sg.id]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "Sunil-VA-Backend"
   }
 }
 
@@ -159,7 +174,36 @@ resource "aws_security_group" "db_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name = "Sunil-VA-DB"
+  }
 }
+
+resource "aws_security_group" "ssh_sg" {
+  name        = "sunil-va-ssh"
+  description = "Allow SSH from anywhere"
+  vpc_id      = aws_vpc.sunil_vpc.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "Sunil-VA-SSH"
+  }
+}
+
 
 # EC2 Instances
 resource "aws_instance" "vote_app" {
@@ -223,6 +267,7 @@ resource "aws_instance" "bastion" {
   key_name                    = var.key_name
   subnet_id                   = aws_subnet.sunil_va_public.id
   associate_public_ip_address = true
+  vpc_security_group_ids      = [aws_security_group.ssh_sg.id]
   tags = {
     Name = "sunil-va-bastion"
   }
