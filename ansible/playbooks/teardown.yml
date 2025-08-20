@@ -38,3 +38,8 @@
       loop:
         - 'redis'
         - 'postgres'
+        
+    - name: Confirm teardown complete
+      ansible.builtin.debug:
+        msg: "Microservices infrastructure teardown complete."
+

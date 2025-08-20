@@ -32,7 +32,7 @@
       - "8082:80"
     env:
       PORT: "80"
-      PG_HOST: postgres
+      PG_HOST: "{{ hostvars['postgres']['ansible_host'] }}"
       PG_PORT: "5432"
       PG_USER: postgres
       PG_PASSWORD: postgres

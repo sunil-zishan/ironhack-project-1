@@ -7,31 +7,31 @@
     - docker
 
 - name: Deploy Redis service
-  hosts: redis
+  hosts: redis_group
   become: yes
   roles:
     - redis
 
 - name: Deploy PostgreSQL database
-  hosts: postgres
+  hosts: postgres_group
   become: yes
   roles:
     - postgres
 
 - name: Deploy Worker backend
-  hosts: worker
+  hosts: worker_group
   become: yes
   roles:
     - worker
 
 - name: Deploy Vote frontend
-  hosts: vote
+  hosts: vote_group
   become: yes
   roles:
     - vote
 
 - name: Deploy Result frontend
-  hosts: result
+  hosts: result_group
   become: yes
   roles:
     - result

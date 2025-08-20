@@ -1,5 +1,5 @@
 - name: Deploy Worker backend
-  hosts: worker
+  hosts: worker_group
   become: yes
   roles:
     - worker

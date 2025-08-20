@@ -29,11 +29,11 @@
     name: worker
     image: sunilzishan/worker:latest
     env:
-      DB_HOST: postgres
+      DB_HOST: "{{ hostvars['postgres']['ansible_host'] }}"
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       DB_NAME: postgres
-      REDIS_HOST: redis
+      REDIS_HOST: "{{ hostvars['redis']['ansible_host'] }}"
     state: started
     restart_policy: always
   when: redis_ready.succeeded and postgres_ready.succeeded
