@@ -1,6 +1,16 @@
+- name: Inject Redis and Postgres into /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    line: "{{ item }}"
+    state: present
+  loop:
+    - "{{ hostvars['redis']['ansible_host'] | default('redis') }} redis"
+    - "{{ hostvars['postgres']['ansible_host'] | default('postgres') }} postgres"
+  become: true
+
 - name: Wait for Redis from result host
   ansible.builtin.wait_for:
-    host: "{{ hostvars['redis']['ansible_host'] | default('redis') }}"
+    host: redis
     port: 6379
     timeout: 30
   delegate_to: "{{ inventory_hostname }}"
@@ -8,7 +18,7 @@
 
 - name: Wait for Postgres from result host
   ansible.builtin.wait_for:
-    host: "{{ hostvars['postgres']['ansible_host'] | default('postgres') }}"
+    host: postgres
     port: 5432
     timeout: 60
   delegate_to: "{{ inventory_hostname }}"
@@ -26,7 +36,7 @@
     name: result
     image: sunilzishan/result:latest
     ports:
-      - "80:80"
+      - "8082:80"
     env:
       PORT: "80"
       PG_HOST: postgres
