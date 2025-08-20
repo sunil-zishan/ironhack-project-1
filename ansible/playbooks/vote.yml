@@ -1,0 +1,5 @@
+- name: Deploy Vote frontend
+  hosts: vote
+  become: yes
+  roles:
+    - vote

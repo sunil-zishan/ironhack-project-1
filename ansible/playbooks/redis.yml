@@ -1,0 +1,5 @@
+- name: Deploy Redis service
+  hosts: redis
+  become: yes
+  roles:
+    - redis

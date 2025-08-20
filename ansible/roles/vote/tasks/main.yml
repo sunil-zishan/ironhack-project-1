@@ -1,0 +1,29 @@
+- name: Wait for Redis
+  wait_for:
+    host: redis
+    port: 6379
+    timeout: 60
+
+- name: Wait for Postgres
+  wait_for:
+    host: postgres
+    port: 5432
+    timeout: 60
+
+- name: Pull Vote Image
+  community.docker.docker_image:
+    name: sunilzishan/vote
+    source: pull
+    tag: latest
+
+- name: Run Vote Container
+  community.docker.docker_container:
+    name: vote
+    image: sunilzishan/vote:latest
+    ports:
+      - "80:80"
+    env:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    state: started
+    restart_policy: always

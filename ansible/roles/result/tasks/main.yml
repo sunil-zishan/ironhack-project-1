@@ -1,0 +1,33 @@
+- name: Wait for Redis
+  wait_for:
+    host: redis
+    port: 6379
+    timeout: 60
+
+- name: Wait for Postgres
+  wait_for:
+    host: postgres
+    port: 5432
+    timeout: 60
+
+- name: Pull Result Image
+  community.docker.docker_image:
+    name: sunilzishan/result
+    source: pull
+    tag: latest
+
+- name: Run Result Container
+  community.docker.docker_container:
+    name: result
+    image: sunilzishan/result:latest
+    ports:
+      - "80:80"
+    env:
+      PORT: "80"
+      PG_HOST: postgres
+      PG_PORT: "5432"
+      PG_USER: postgres
+      PG_PASSWORD: postgres
+      PG_DATABASE: postgres
+    state: started
+    restart_policy: always
