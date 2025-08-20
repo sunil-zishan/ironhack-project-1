@@ -113,6 +113,13 @@ resource "aws_security_group" "frontend_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+  from_port       = 22
+  to_port         = 22
+  protocol        = "tcp"
+  security_groups = [aws_security_group.ssh_sg.id]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -160,12 +167,22 @@ resource "aws_security_group" "db_sg" {
   name        = "sunil-va-db"
   description = "Allow Postgres access from backend"
   vpc_id      = aws_vpc.sunil_vpc.id
-
+  
   ingress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.backend_sg.id]
+  from_port       = 5432
+  to_port         = 5432
+  protocol        = "tcp"
+  security_groups = [
+    aws_security_group.backend_sg.id,
+    aws_security_group.frontend_sg.id
+    ]
+  }
+  
+  ingress {
+  from_port       = 22
+  to_port         = 22
+  protocol        = "tcp"
+  security_groups = [aws_security_group.ssh_sg.id]
   }
 
   egress {
