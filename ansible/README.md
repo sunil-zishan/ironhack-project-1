@@ -59,7 +59,7 @@ result ansible_host=<result-instance-private-ip>
 worker ansible_host=<worker-instance-private-ip>
 redis ansible_host=<redis-instance-private-ip>
 
-[db]
+[postgres]
 postgres ansible_host=<postgres-instance-private-ip>
 ```
 
