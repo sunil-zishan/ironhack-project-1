@@ -5,15 +5,15 @@
 
 - name: Wait for Redis from worker host
   ansible.builtin.wait_for:
-    host: redis
+    host: "{{ redis_ip }}"
     port: 6379
-    timeout: 60
+    timeout: 30
   delegate_to: "{{ inventory_hostname }}"
   register: redis_ready
 
 - name: Wait for Postgres from worker host
   ansible.builtin.wait_for:
-    host: postgres
+    host: "{{ postgres_ip }}"
     port: 5432
     timeout: 60
   delegate_to: "{{ inventory_hostname }}"

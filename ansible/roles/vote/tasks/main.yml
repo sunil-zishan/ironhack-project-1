@@ -5,19 +5,11 @@
 
 - name: Wait for Redis from vote host
   ansible.builtin.wait_for:
-    host: redis
+    host: "{{ redis_ip }}"
     port: 6379
     timeout: 30
   delegate_to: "{{ inventory_hostname }}"
   register: redis_ready
-
-- name: Wait for Postgres from vote host
-  ansible.builtin.wait_for:
-    host: postgres
-    port: 5432
-    timeout: 60
-  delegate_to: "{{ inventory_hostname }}"
-  register: postgres_ready
 
 - name: Pull Vote Image
   community.docker.docker_image:

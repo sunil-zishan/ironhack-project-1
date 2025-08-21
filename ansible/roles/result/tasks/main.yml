@@ -3,17 +3,9 @@
     name: common
     tasks_from: inject_hosts.yml
 
-- name: Wait for Redis from result host
-  ansible.builtin.wait_for:
-    host: redis
-    port: 6379
-    timeout: 30
-  delegate_to: "{{ inventory_hostname }}"
-  register: redis_ready
-
 - name: Wait for Postgres from result host
   ansible.builtin.wait_for:
-    host: postgres
+    host: "{{ postgres_ip }}"
     port: 5432
     timeout: 60
   delegate_to: "{{ inventory_hostname }}"
