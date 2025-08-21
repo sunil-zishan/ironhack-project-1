@@ -114,6 +114,20 @@ resource "aws_security_group" "frontend_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  
+  ingress {
+    from_port   = 8081
+    to_port     = 8081
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8082
+    to_port     = 8082
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   ingress {
   from_port       = 22
@@ -199,6 +213,30 @@ resource "aws_security_group" "db_sg" {
   }
 }
 
+resource "aws_security_group" "redis_sg" {
+  name        = "sunil-va-redis"
+  description = "Allow Redis access from backend"
+  vpc_id      = aws_vpc.sunil_vpc.id
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.backend_sg.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "Sunil-VA-Redis"
+  }
+}
+
 resource "aws_security_group" "ssh_sg" {
   name        = "sunil-va-ssh"
   description = "Allow SSH from anywhere"
@@ -263,7 +301,10 @@ resource "aws_instance" "redis_instance" {
   instance_type = var.instance_type
   key_name      = var.key_name
   subnet_id     = aws_subnet.sunil_va_private_b.id
-  vpc_security_group_ids = [aws_security_group.backend_sg.id]
+  vpc_security_group_ids = [
+    aws_security_group.backend_sg.id,
+    aws_security_group.redis_sg.id
+  ]
   tags = {
     Name = "sunil-va-redis"
   }

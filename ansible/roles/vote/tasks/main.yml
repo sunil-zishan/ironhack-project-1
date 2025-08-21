@@ -5,33 +5,38 @@
 
 - name: Wait for Redis from vote host
   ansible.builtin.wait_for:
-    host: "{{ redis_ip }}"
+    host: "{{ hostvars['redis']['ansible_default_ipv4']['address'] }}"
     port: 6379
     timeout: 30
   delegate_to: "{{ inventory_hostname }}"
   register: redis_ready
 
+- name: Log Redis wait time
+  ansible.builtin.debug:
+    msg: "Redis was reachable in {{ redis_ready.elapsed }} seconds"
+  when: not redis_ready.failed
+
 - name: Pull Vote Image
   community.docker.docker_image:
-    name: sunilzishan/vote
+    name: sunilzishan/voting-app
     source: pull
     tag: latest
-  when: redis_ready.succeeded and postgres_ready.succeeded
+  when: not redis_ready.failed
 
 - name: Run Vote Container
   community.docker.docker_container:
     name: vote
-    image: sunilzishan/vote:latest
+    image: sunilzishan/voting-app:latest
     ports:
       - "8081:80"
     env:
-      REDIS_HOST: "{{ hostvars['worker-redis']['ansible_host'] }}"
-      REDIS_PORT: 6379
+      REDIS_HOST: "{{ hostvars['redis']['ansible_default_ipv4']['address'] }}"
+      REDIS_PORT: "6379"
     state: started
     restart_policy: always
-  when: redis_ready.succeeded and postgres_ready.succeeded
+  when: not redis_ready.failed
 
-- name: Log failure if dependencies are not ready
+- name: Log failure if Redis is not ready
   ansible.builtin.debug:
-    msg: "Vote container not started because Redis or Postgres is not ready."
-  when: redis_ready.failed or postgres_ready.failed
+    msg: "Vote container not started because Redis is not ready."
+  when: redis_ready.failed

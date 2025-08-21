@@ -4,6 +4,7 @@
     line: "{{ item }}"
     state: present
   loop:
-    - "{{ hostvars['redis']['ansible_host'] | default('redis') }} redis"
-    - "{{ hostvars['postgres']['ansible_host'] | default('postgres') }} postgres"
+    - "{{ hostvars['redis']['ansible_default_ipv4']['address'] }} redis"
+    - "{{ hostvars['postgres']['ansible_default_ipv4']['address'] }} postgres"
   become: true
+  delegate_to: "{{ inventory_hostname }}"
